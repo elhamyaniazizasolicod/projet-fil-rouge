@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "nom": "Économique",
+    "description": "Voiture compacte idéale pour la ville et faible consommation",
+    "tarifBase": 250.0,
+    "image": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": 2,
+    "nom": "Berline",
+    "description": "Grand confort et élégance pour les trajets d'affaires et longs voyages",
+    "tarifBase": 450.0,
+    "image": "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": 3,
+    "nom": "SUV & 4x4",
+    "description": "Véhicule surélevé, spacieux, tout-terrain et idéal pour les familles",
+    "tarifBase": 650.0,
+    "image": "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": 4,
+    "nom": "Utilitaire",
+    "description": "Fourgonnette avec grand volume pour transport de matériel",
+    "tarifBase": 500.0,
+    "image": "https://images.unsplash.com/photo-1586191582056-a60787e9c9c8?auto=format&fit=crop&w=800&q=80"
+  }
+]

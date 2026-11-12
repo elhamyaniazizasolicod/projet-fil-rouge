@@ -1,0 +1,20 @@
+[
+    {
+        "id": 1,
+        "locataireId": 2,
+        "vehiculeId": 2,
+        "dateDebut": "2026-11-10",
+        "dateFin": "2026-11-15",
+        "prixTotal": 1500,
+        "statut": "Terminé"
+    },
+    {
+        "id": 2,
+        "locataireId": 2,
+        "vehiculeId": 4,
+        "dateDebut": "2026-11-12",
+        "dateFin": "2026-11-13",
+        "prixTotal": 700,
+        "statut": "Terminé"
+    }
+]

@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoLoc | Service de Location de Voitures</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            200: '#bae0fd',
+                            300: '#7cc5fb',
+                            400: '#36a6f6',
+                            500: '#0c87eb',
+                            600: '#026bc9',
+                            700: '#0355a3',
+                            800: '#074885',
+                            900: '#0c3d6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="h-full flex overflow-hidden text-slate-800">
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 transition-all duration-300">
+        <!-- Logo / Branding -->
+        <div class="h-16 flex items-center px-6 bg-slate-950/60 border-b border-slate-800 gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary-600 to-cyan-400 flex items-center justify-center text-white shadow-lg shadow-primary-500/30">
+                <i class="fa-solid fa-car-side text-lg"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-white text-base tracking-wide">AutoLoc <span class="text-primary-400 text-xs px-2 py-0.5 rounded-full bg-primary-500/10 border border-primary-500/20">Pro</span></h1>
+                <p class="text-xs text-slate-400">Location de Voitures</p>
+            </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+            <p class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Navigation</p>
+            
+            <button onclick="app.naviguer('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors bg-primary-600 text-white shadow-sm">
+                <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+                <span>Tableau de bord</span>
+            </button>
+
+            <button onclick="app.naviguer('vehicules')" id="nav-vehicules" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white">
+                <i class="fa-solid fa-car w-5 text-center text-primary-400"></i>
+                <span>Véhicules</span>
+                <span id="badge-total-vehicules" class="ml-auto text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-300">0</span>
+            </button>
+
+            <button onclick="app.naviguer('categories')" id="nav-categories" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white">
+                <i class="fa-solid fa-layer-group w-5 text-center text-amber-400"></i>
+                <span>Catégories</span>
+                <span id="badge-total-categories" class="ml-auto text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-300">0</span>
+            </button>
+
+            <button onclick="app.naviguer('locataires')" id="nav-locataires" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white">
+                <i class="fa-solid fa-users w-5 text-center text-emerald-400"></i>
+                <span>Locataires</span>
+                <span id="badge-total-locataires" class="ml-auto text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-300">0</span>
+            </button>
+
+            <button onclick="app.naviguer('contrats')" id="nav-contrats" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white">
+                <i class="fa-solid fa-file-contract w-5 text-center text-purple-400"></i>
+                <span>Contrats de Location</span>
+                <span id="badge-total-contrats" class="ml-auto text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-300">0</span>
+            </button>
+
+            <div class="pt-6">
+                <p class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Architecture</p>
+                <div class="px-3 py-3 rounded-lg bg-slate-800/60 border border-slate-700/50 text-xs space-y-1.5 text-slate-400">
+                    <div class="flex items-center justify-between"><span class="text-slate-300">Pattern :</span> <span class="font-semibold text-primary-300">N-tiers Vanilla</span></div>
+                    <div class="flex items-center justify-between"><span class="text-slate-300">Persistance :</span> <span class="text-emerald-400 font-mono">DAO JSON</span></div>
+                    <div class="flex items-center justify-between"><span class="text-slate-300">Tables :</span> <span class="text-white font-bold">4 entités</span></div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- User / School Footer -->
+        <div class="p-4 border-t border-slate-800 bg-slate-950/40 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-primary-900 border border-primary-500/30 flex items-center justify-center text-primary-300 font-bold text-sm">
+                SC
+            </div>
+            <div class="overflow-hidden">
+                <p class="text-sm font-medium text-white truncate">SoliCode Dev</p>
+                <p class="text-xs text-slate-400 truncate">Projet Fil Rouge</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col h-full overflow-hidden">
+        
+        <!-- Topbar Header -->
+        <header class="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between flex-shrink-0 shadow-sm">
+            <div class="flex items-center gap-3">
+                <span id="page-icon" class="text-primary-600 text-xl"><i class="fa-solid fa-chart-pie"></i></span>
+                <h2 id="page-title" class="text-xl font-bold text-slate-800">Tableau de bord</h2>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="app.rafraichir()" class="p-2 text-slate-500 hover:text-primary-600 hover:bg-slate-100 rounded-lg transition-colors" title="Actualiser les données">
+                    <i class="fa-solid fa-rotate text-sm"></i>
+                </button>
+                <div class="h-6 w-px bg-slate-200"></div>
+                <button id="btn-nouveau-global" onclick="app.actionNouveau()" class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-lg shadow-sm transition-all shadow-primary-600/20 hover:shadow-primary-600/30">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span id="btn-nouveau-texte">Nouveau Contrat</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Dynamic View Container -->
+        <main class="flex-1 overflow-y-auto p-8 bg-slate-50">
+
+            <!-- ========================================== -->
+            <!-- 1. VUE TABLEAU DE BORD                     -->
+            <!-- ========================================== -->
+            <section id="vue-dashboard" class="space-y-8">
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Flotte Totale</p>
+                            <h3 id="stat-total-vehicules" class="text-3xl font-extrabold text-slate-900 mt-2">0</h3>
+                            <p class="text-xs text-slate-500 mt-1">Véhicules enregistrés</p>
+                        </div>
+                        <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl shadow-inner">
+                            <i class="fa-solid fa-car"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Disponibles</p>
+                            <h3 id="stat-vehicules-dispo" class="text-3xl font-extrabold text-emerald-600 mt-2">0</h3>
+                            <p class="text-xs text-slate-500 mt-1">Prêts à la location</p>
+                        </div>
+                        <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl shadow-inner">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Contrats en cours</p>
+                            <h3 id="stat-contrats-actifs" class="text-3xl font-extrabold text-purple-600 mt-2">0</h3>
+                            <p class="text-xs text-slate-500 mt-1">Locations actives</p>
+                        </div>
+                        <div class="w-14 h-14 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-2xl shadow-inner">
+                            <i class="fa-solid fa-key"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Chiffre d'Affaires</p>
+                            <h3 id="stat-chiffre-affaires" class="text-3xl font-extrabold text-slate-900 mt-2">0 DH</h3>
+                            <p class="text-xs text-slate-500 mt-1">Total des contrats</p>
+                        </div>
+                        <div class="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl shadow-inner">
+                            <i class="fa-solid fa-coins"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section Derniers Contrats Réalisés -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800">Contrats de Location Récents</h3>
+                            <p class="text-xs text-slate-500">Vue rapide des dernières opérations de location</p>
+                        </div>
+                        <button onclick="app.naviguer('contrats')" class="text-xs text-primary-600 font-semibold hover:underline flex items-center gap-1">
+                            Voir tous les contrats <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-slate-600">
+                            <thead class="bg-slate-50/80 text-xs font-semibold uppercase text-slate-400 border-b border-slate-200">
+                                <tr>
+                                    <th class="py-3.5 px-6">ID</th>
+                                    <th class="py-3.5 px-6">Locataire (Client)</th>
+                                    <th class="py-3.5 px-6">Véhicule</th>
+                                    <th class="py-3.5 px-6">Période</th>
+                                    <th class="py-3.5 px-6">Montant</th>
+                                    <th class="py-3.5 px-6">Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-dashboard-contrats" class="divide-y divide-slate-100">
+                                <tr><td colspan="6" class="text-center py-8 text-slate-400">Chargement...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- 2. VUE VÉHICULES (CLASSE PRINCIPALE)       -->
+            <!-- ========================================== -->
+            <section id="vue-vehicules" class="hidden space-y-6">
+                <!-- Filtres et Recherche -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+                    <div class="relative w-full md:w-80">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+                        <input type="text" id="recherche-vehicules" oninput="app.filtrerVehicules()" placeholder="Rechercher marque, modèle, immat..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary-500 focus:bg-white transition-all">
+                    </div>
+                    <div class="flex items-center gap-3 w-full md:w-auto">
+                        <select id="filtre-categorie-vehicule" onchange="app.filtrerVehicules()" class="px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary-500">
+                            <option value="">Toutes les catégories</option>
+                        </select>
+                        <select id="filtre-statut-vehicule" onchange="app.filtrerVehicules()" class="px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary-500">
+                            <option value="">Tous les statuts</option>
+                            <option value="Disponible">Disponible</option>
+                            <option value="Loué">Loué</option>
+                            <option value="En maintenance">En maintenance</option>
+                        </select>
+                        <button onclick="app.ouvrirModal('modal-vehicule')" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-sm font-medium shadow-sm transition-all whitespace-nowrap">
+                            <i class="fa-solid fa-plus mr-1"></i> Ajouter Véhicule
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table Véhicules -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-slate-600">
+                            <thead class="bg-slate-50 text-xs font-semibold uppercase text-slate-400 border-b border-slate-200">
+                                <tr>
+                                    <th class="py-3.5 px-6">ID</th>
+                                    <th class="py-3.5 px-6">Immatriculation</th>
+                                    <th class="py-3.5 px-6">Véhicule</th>
+                                    <th class="py-3.5 px-6">Catégorie</th>
+                                    <th class="py-3.5 px-6">Prix / Jour</th>
+                                    <th class="py-3.5 px-6">Statut</th>
+                                    <th class="py-3.5 px-6 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-vehicules" class="divide-y divide-slate-100">
+                                <tr><td colspan="7" class="text-center py-8 text-slate-400">Chargement...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- 3. VUE CATÉGORIES                          -->
+            <!-- ========================================== -->
+            <section id="vue-categories" class="hidden space-y-6">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800">Catégories de Véhicules</h3>
+                        <p class="text-xs text-slate-500">Classification des types de véhicules et tarifs indicatifs</p>
+                    </div>
+                    <button onclick="app.ouvrirModal('modal-categorie')" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-sm font-medium shadow-sm transition-all">
+                        <i class="fa-solid fa-plus mr-1"></i> Nouvelle Catégorie
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="grid-categories">
+                    <!-- Cards de catégories générées en JS -->
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- 4. VUE LOCATAIRES                          -->
+            <!-- ========================================== -->
+            <section id="vue-locataires" class="hidden space-y-6">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+                    <div class="relative w-full md:w-80">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+                        <input type="text" id="recherche-locataires" oninput="app.filtrerLocataires()" placeholder="Rechercher par nom, CIN, permis..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary-500 focus:bg-white transition-all">
+                    </div>
+                    <button onclick="app.ouvrirModal('modal-locataire')" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-sm font-medium shadow-sm transition-all whitespace-nowrap">
+                        <i class="fa-solid fa-plus mr-1"></i> Nouveau Locataire
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-slate-600">
+                            <thead class="bg-slate-50 text-xs font-semibold uppercase text-slate-400 border-b border-slate-200">
+                                <tr>
+                                    <th class="py-3.5 px-6">ID</th>
+                                    <th class="py-3.5 px-6">CIN</th>
+                                    <th class="py-3.5 px-6">Nom & Prénom</th>
+                                    <th class="py-3.5 px-6">Téléphone</th>
+                                    <th class="py-3.5 px-6">Email</th>
+                                    <th class="py-3.5 px-6">N° Permis</th>
+                                    <th class="py-3.5 px-6 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-locataires" class="divide-y divide-slate-100">
+                                <tr><td colspan="7" class="text-center py-8 text-slate-400">Chargement...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- 5. VUE CONTRATS DE LOCATION                -->
+            <!-- ========================================== -->
+            <section id="vue-contrats" class="hidden space-y-6">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800">Contrats de Location</h3>
+                        <p class="text-xs text-slate-500">Gestion des locations, liaisons véhicules-locataires et clôtures</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <select id="filtre-statut-contrat" onchange="app.filtrerContrats()" class="px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary-500">
+                            <option value="">Tous les statuts</option>
+                            <option value="En cours">En cours</option>
+                            <option value="Terminé">Terminé</option>
+                        </select>
+                        <button onclick="app.ouvrirModal('modal-contrat')" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-sm font-medium shadow-sm transition-all whitespace-nowrap">
+                            <i class="fa-solid fa-plus mr-1"></i> Nouveau Contrat
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-slate-600">
+                            <thead class="bg-slate-50 text-xs font-semibold uppercase text-slate-400 border-b border-slate-200">
+                                <tr>
+                                    <th class="py-3.5 px-6">N° Contrat</th>
+                                    <th class="py-3.5 px-6">Locataire</th>
+                                    <th class="py-3.5 px-6">Véhicule</th>
+                                    <th class="py-3.5 px-6">Date Début</th>
+                                    <th class="py-3.5 px-6">Date Fin</th>
+                                    <th class="py-3.5 px-6">Durée</th>
+                                    <th class="py-3.5 px-6">Montant Total</th>
+                                    <th class="py-3.5 px-6">Statut</th>
+                                    <th class="py-3.5 px-6 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-contrats" class="divide-y divide-slate-100">
+                                <tr><td colspan="9" class="text-center py-8 text-slate-400">Chargement...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODALS FORMULAIRES (Conformes à l'architecture Vanilla)  -->
+    <!-- ======================================================== -->
+
+    <!-- Modal Catégorie -->
+    <div id="modal-categorie" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-layer-group text-amber-500"></i> Nouvelle Catégorie
+                </h3>
+                <button onclick="app.fermerModal('modal-categorie')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-categorie" onsubmit="app.soumettreCategorie(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nom de la catégorie *</label>
+                    <input type="text" name="nom" required placeholder="ex: Berline, SUV, Économique" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Tarif de base journalier (DH) *</label>
+                    <input type="number" step="0.01" min="1" name="tarifBase" required placeholder="ex: 350" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Image de la catégorie (URL)</label>
+                    <input type="url" name="image" placeholder="ex: https://images.unsplash.com/... (optionnel)" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Description</label>
+                    <textarea name="description" rows="3" placeholder="Caractéristiques générales de la catégorie..." class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary-500"></textarea>
+                </div>
+                <div class="pt-4 flex items-center justify-end gap-3 border-t border-slate-100">
+                    <button type="button" onclick="app.fermerModal('modal-categorie')" class="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-sm font-medium hover:bg-slate-50">Annuler</button>
+                    <button type="submit" id="btn-submit-categorie" class="px-5 py-2 bg-primary-600 text-white rounded-xl text-sm font-medium hover:bg-primary-700 shadow-sm flex items-center gap-2">
+                        <span>Enregistrer</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Véhicule -->
+    <div id="modal-vehicule" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-car text-primary-600"></i> Nouveau Véhicule
+                </h3>
+                <button onclick="app.fermerModal('modal-vehicule')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-vehicule" onsubmit="app.soumettreVehicule(event)" class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Marque *</label>
+                        <input type="text" name="marque" required placeholder="ex: Renault, Dacia" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Modèle *</label>
+                        <input type="text" name="modele" required placeholder="ex: Clio 5, Logan" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Immatriculation *</label>
+                    <input type="text" name="immatriculation" required placeholder="ex: 12345-A-1" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary-500">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Catégorie *</label>
+                        <select name="categorieId" id="select-modal-categorie" required class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary-500 bg-white">
+                            <option value="">Sélectionner une catégorie</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Prix par Jour (DH) *</label>
+                        <input type="number" step="0.01" min="1" name="prixJour" required placeholder="ex: 350" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Image du véhicule (URL)</label>
+                    <input type="url" name="image" placeholder="ex: https://images.unsplash.com/... (optionnel)" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Statut initial</label>
+                    <select name="statut" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary-500 bg-white">
+                        <option value="Disponible">Disponible</option>
+                        <option value="En maintenance">En maintenance</option>
+                    </select>
+                </div>
+                <div class="pt-4 flex items-center justify-end gap-3 border-t border-slate-100">
+                    <button type="button" onclick="app.fermerModal('modal-vehicule')" class="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-sm font-medium hover:bg-slate-50">Annuler</button>
+                    <button type="submit" id="btn-submit-vehicule" class="px-5 py-2 bg-primary-600 text-white rounded-xl text-sm font-medium hover:bg-primary-700 shadow-sm flex items-center gap-2">
+                        <span>Enregistrer</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Locataire -->
+    <div id="modal-locataire" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus text-emerald-600"></i> Nouveau Locataire (Client)
+                </h3>
+                <button onclick="app.fermerModal('modal-locataire')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-locataire" onsubmit="app.soumettreLocataire(event)" class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nom *</label>
+                        <input type="text" name="nom" required placeholder="ex: Alami" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Prénom *</label>
+                        <input type="text" name="prenom" required placeholder="ex: Yassine" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary-500">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">CIN / Passeport *</label>
+                        <input type="text" name="cin" required placeholder="ex: K123456" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">N° de Permis *</label>
+                        <input type="text" name="permis" required placeholder="ex: B-987654" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary-500">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Téléphone *</label>
+                        <input type="tel" name="telephone" required placeholder="ex: 0661122334" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Email</label>
+                        <input type="email" name="email" placeholder="client@email.com" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary-500">
+                    </div>
+                </div>
+                <div class="pt-4 flex items-center justify-end gap-3 border-t border-slate-100">
+                    <button type="button" onclick="app.fermerModal('modal-locataire')" class="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-sm font-medium hover:bg-slate-50">Annuler</button>
+                    <button type="submit" id="btn-submit-locataire" class="px-5 py-2 bg-primary-600 text-white rounded-xl text-sm font-medium hover:bg-primary-700 shadow-sm flex items-center gap-2">
+                        <span>Enregistrer</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Contrat de Location -->
+    <div id="modal-contrat" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-file-signature text-purple-600"></i> Nouveau Contrat de Location
+                </h3>
+                <button onclick="app.fermerModal('modal-contrat')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-contrat" onsubmit="app.soumettreContrat(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Locataire (Client) *</label>
+                    <select name="locataireId" id="select-modal-locataire" required class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary-500 bg-white">
+                        <option value="">Sélectionner un locataire</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Véhicule Disponible *</label>
+                    <select name="vehiculeId" id="select-modal-vehicule" onchange="app.calculerMontantContrat()" required class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary-500 bg-white">
+                        <option value="">Sélectionner un véhicule disponible</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Date Début *</label>
+                        <input type="date" name="dateDebut" id="contrat-date-debut" onchange="app.calculerMontantContrat()" required class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Date Fin *</label>
+                        <input type="date" name="dateFin" id="contrat-date-fin" onchange="app.calculerMontantContrat()" required class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary-500">
+                    </div>
+                </div>
+
+                <!-- Récapitulatif Tarif Calculé Automatiquement -->
+                <div class="p-4 rounded-xl bg-purple-50 border border-purple-200/60 flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-semibold text-purple-700 uppercase">Montant Total Estimé</span>
+                        <p class="text-xs text-purple-600" id="recap-duree">0 jour(s) de location</p>
+                    </div>
+                    <div class="text-right">
+                        <span id="recap-montant" class="text-2xl font-black text-purple-900">0.00 DH</span>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex items-center justify-end gap-3 border-t border-slate-100">
+                    <button type="button" onclick="app.fermerModal('modal-contrat')" class="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-sm font-medium hover:bg-slate-50">Annuler</button>
+                    <button type="submit" id="btn-submit-contrat" class="px-5 py-2 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-700 shadow-sm flex items-center gap-2">
+                        <span>Créer le Contrat</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script Application JS -->
+    <script src="assets/js/app.js"></script>
+</body>
+</html>
+

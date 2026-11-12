@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "cin": "K123456",
+    "nom": "Alami",
+    "prenom": "Yassine",
+    "telephone": "0661122334",
+    "email": "yassine.alami@email.com",
+    "permis": "B-987654"
+  },
+  {
+    "id": 2,
+    "cin": "BK789012",
+    "nom": "Bennani",
+    "prenom": "Sara",
+    "telephone": "0662987654",
+    "email": "sara.bennani@email.com",
+    "permis": "B-123456"
+  },
+  {
+    "id": 3,
+    "cin": "L345678",
+    "nom": "Chraibi",
+    "prenom": "Omar",
+    "telephone": "0663456789",
+    "email": "omar.chraibi@email.com",
+    "permis": "B-554433"
+  }
+]
+
