@@ -1,0 +1,82 @@
+[
+    {
+        "id": 1,
+        "immatriculation": "12345-A-6",
+        "marque": "Dacia",
+        "modele": "Sandero",
+        "categorieId": 1,
+        "prixJour": 220,
+        "statut": "Disponible",
+        "image": "https://images.unsplash.com/photo-1603386329225-868f9b1ee6c9?auto=format&fit=crop&w=700&q=80"
+    },
+    {
+        "id": 2,
+        "immatriculation": "23456-B-6",
+        "marque": "Renault",
+        "modele": "Clio 5",
+        "categorieId": 1,
+        "prixJour": 250,
+        "statut": "Loué",
+        "image": "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=700&q=80"
+    },
+    {
+        "id": 3,
+        "immatriculation": "34567-C-6",
+        "marque": "Volkswagen",
+        "modele": "Golf 8",
+        "categorieId": 2,
+        "prixJour": 390,
+        "statut": "Disponible",
+        "image": "https://images.unsplash.com/photo-1611859266238-4b98091d9d9b?auto=format&fit=crop&w=700&q=80"
+    },
+    {
+        "id": 4,
+        "immatriculation": "45678-D-6",
+        "marque": "Skoda",
+        "modele": "Octavia",
+        "categorieId": 2,
+        "prixJour": 360,
+        "statut": "Disponible",
+        "image": "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=700&q=80"
+    },
+    {
+        "id": 5,
+        "immatriculation": "56789-E-6",
+        "marque": "Hyundai",
+        "modele": "Tucson",
+        "categorieId": 3,
+        "prixJour": 520,
+        "statut": "Loué",
+        "image": "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=700&q=80"
+    },
+    {
+        "id": 6,
+        "immatriculation": "67890-F-6",
+        "marque": "Dacia",
+        "modele": "Duster",
+        "categorieId": 3,
+        "prixJour": 450,
+        "statut": "En maintenance",
+        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=700&q=80"
+    },
+    {
+        "id": 7,
+        "immatriculation": "78901-G-6",
+        "marque": "Renault",
+        "modele": "Kangoo",
+        "categorieId": 4,
+        "prixJour": 420,
+        "statut": "Disponible",
+        "image": "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=700&q=80"
+    },
+    {
+        "id": 8,
+        "immatriculation": "89012-H-6",
+        "marque": "Fiat",
+        "modele": "Doblo",
+        "categorieId": 4,
+        "prixJour": 400,
+        "statut": "Disponible",
+        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=700&q=80"
+    }
+]

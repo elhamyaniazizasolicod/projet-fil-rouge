@@ -1,0 +1,38 @@
+[
+    {
+        "id": 1,
+        "locataireId": 1,
+        "vehiculeId": 2,
+        "dateDebut": "2026-11-10",
+        "dateFin": "2026-11-14",
+        "prixTotal": 1000,
+        "statut": "En cours"
+    },
+    {
+        "id": 2,
+        "locataireId": 2,
+        "vehiculeId": 5,
+        "dateDebut": "2026-11-11",
+        "dateFin": "2026-11-16",
+        "prixTotal": 2600,
+        "statut": "En cours"
+    },
+    {
+        "id": 3,
+        "locataireId": 3,
+        "vehiculeId": 1,
+        "dateDebut": "2026-10-20",
+        "dateFin": "2026-10-23",
+        "prixTotal": 660,
+        "statut": "Terminé"
+    },
+    {
+        "id": 4,
+        "locataireId": 4,
+        "vehiculeId": 4,
+        "dateDebut": "2026-10-15",
+        "dateFin": "2026-10-18",
+        "prixTotal": 1080,
+        "statut": "Terminé"
+    }
+]

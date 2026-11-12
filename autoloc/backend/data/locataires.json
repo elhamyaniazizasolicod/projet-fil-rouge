@@ -1,0 +1,6 @@
+[
+  {"id": 1, "cin": "AB123456", "nom": "El Amrani", "prenom": "Yassine", "telephone": "+212 6 12 34 56 78", "email": "yassine.elamrani@example.com", "permis": "P-2018-4451"},
+  {"id": 2, "cin": "CD234567", "nom": "Benali", "prenom": "Salma", "telephone": "+212 6 23 45 67 89", "email": "salma.benali@example.com", "permis": "P-2020-2318"},
+  {"id": 3, "cin": "EF345678", "nom": "Alaoui", "prenom": "Omar", "telephone": "+212 6 34 56 78 90", "email": "omar.alaoui@example.com", "permis": "P-2016-9082"},
+  {"id": 4, "cin": "GH456789", "nom": "Berrada", "prenom": "Meryem", "telephone": "+212 6 45 67 89 01", "email": "meryem.berrada@example.com", "permis": "P-2022-1186"}
+]

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101a2f">
+  <title>AutoLoc — Gestion de location</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ink: '#101a2f',
+            navy: '#17233d',
+            teal: '#19b5a5',
+            mist: '#f4f7fb',
+            muted: '#718096'
+          },
+          boxShadow: {
+            soft: '0 12px 34px rgba(16, 26, 47, .07)',
+            card: '0 4px 18px rgba(16, 26, 47, .05)'
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+    body { background: #f4f7fb; color: #17233d; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .nav-link { display:flex; align-items:center; gap:.85rem; width:100%; padding:.78rem .9rem; border-radius:13px; color:#aebbd0; transition:.18s ease; font-size:.91rem; font-weight:600; }
+    .nav-link:hover { color:#fff; background:rgba(255,255,255,.07); }
+    .nav-link.active { color:#fff; background:linear-gradient(110deg,rgba(25,181,165,.24),rgba(25,181,165,.08)); box-shadow:inset 3px 0 #19b5a5; }
+    .nav-link .nav-icon { width:22px; text-align:center; font-size:1.05rem; }
+    .section-panel { display:none; animation:fadeIn .22s ease; }
+    .section-panel.active { display:block; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
+    .field { width:100%; border:1px solid #e1e7ef; border-radius:11px; padding:.72rem .85rem; outline:none; background:#fff; color:#17233d; transition:.18s; }
+    .field:focus { border-color:#19b5a5; box-shadow:0 0 0 3px rgba(25,181,165,.12); }
+    .field-label { display:block; font-size:.78rem; font-weight:700; color:#526078; margin-bottom:.42rem; }
+    .btn-primary { background:#19b5a5; color:#062d2a; font-weight:800; border-radius:11px; padding:.72rem 1rem; transition:.18s; }
+    .btn-primary:hover { background:#13a695; transform:translateY(-1px); }
+    .btn-secondary { background:#f0f3f8; color:#34425b; font-weight:700; border-radius:11px; padding:.68rem .95rem; }
+    .btn-secondary:hover { background:#e5ebf3; }
+    .btn-danger { color:#d44757; background:#fff0f1; border-radius:9px; padding:.48rem .68rem; font-weight:700; font-size:.78rem; }
+    .btn-ghost { color:#43516a; background:#f4f6fa; border-radius:9px; padding:.48rem .68rem; font-weight:700; font-size:.78rem; }
+    .table-wrap { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; white-space:nowrap; }
+    th { text-align:left; font-size:.7rem; letter-spacing:.07em; text-transform:uppercase; color:#8995a8; font-weight:800; padding: .9rem 1rem; background:#fafbfd; }
+    td { padding:.9rem 1rem; border-top:1px solid #edf0f5; font-size:.84rem; color:#43516a; }
+    tbody tr:hover { background:#fbfcfe; }
+    .badge { display:inline-flex; align-items:center; gap:.35rem; padding:.32rem .62rem; border-radius:999px; font-size:.7rem; font-weight:800; }
+    .badge-available { color:#087e6f; background:#e4f8f3; }
+    .badge-rented { color:#a66a12; background:#fff4df; }
+    .badge-maintenance { color:#6d5eb0; background:#f0edff; }
+    .badge-done { color:#64748b; background:#eef2f7; }
+    .toast { display:flex; align-items:center; gap:.75rem; min-width:280px; max-width:min(420px,calc(100vw - 32px)); padding:.9rem 1rem; color:#fff; background:#17233d; border-radius:13px; box-shadow:0 14px 35px rgba(0,0,0,.18); animation:toastIn .25s ease; }
+    .toast.error { background:#a83243; }
+    .toast.success { background:#087e6f; }
+    @keyframes toastIn { from { opacity:0; transform:translateX(15px); } to { opacity:1; transform:translateX(0); } }
+    .modal-backdrop { display:none; position:fixed; inset:0; z-index:60; background:rgba(8,17,33,.58); padding:1rem; overflow-y:auto; }
+    .modal-backdrop.open { display:flex; align-items:center; justify-content:center; }
+    .modal-card { width:min(680px,100%); max-height:calc(100vh - 2rem); overflow-y:auto; background:white; border-radius:20px; box-shadow:0 30px 80px rgba(0,0,0,.25); animation:fadeIn .2s ease; }
+    .modal-card.wide { width:min(850px,100%); }
+    .category-banner { position:relative; min-height:145px; background-size:cover; background-position:center; }
+    .category-banner:after { content:""; position:absolute; inset:0; background:linear-gradient(90deg,rgba(13,26,46,.82),rgba(13,26,46,.08)); }
+    .category-banner-content { position:relative; z-index:1; color:white; }
+    .vehicle-photo { width:66px; height:48px; border-radius:9px; object-fit:cover; background:#e7ecf3; }
+    .empty-state { padding:3rem 1rem; text-align:center; color:#8995a8; }
+    .loading-skeleton { height:16px; border-radius:7px; background:linear-gradient(90deg,#edf1f6,#f7f9fc,#edf1f6); background-size:200% 100%; animation:shimmer 1.1s infinite; }
+    @keyframes shimmer { to { background-position:-200% 0; } }
+    @media (max-width: 800px) { #sidebar { transform:translateX(-100%); transition:transform .2s ease; } #sidebar.open { transform:translateX(0); } #mobileShade.open { display:block; } #mainContent { margin-left:0 !important; } }
+  </style>
+</head>
+<body class="min-h-screen">
+  <div id="mobileShade" class="hidden fixed inset-0 bg-slate-950/50 z-30" onclick="window.AutoLoc.toggleSidebar(false)"></div>
+  <aside id="sidebar" class="fixed z-40 inset-y-0 left-0 w-[260px] bg-ink text-white flex flex-col px-5 py-6">
+    <div class="flex items-center gap-3 px-2 mb-10">
+      <div class="w-11 h-11 rounded-2xl bg-teal text-ink flex items-center justify-center text-2xl font-black">A</div>
+      <div><div class="text-xl font-black tracking-tight">AutoLoc<span class="text-teal">.</span></div><div class="text-[10px] tracking-[.2em] uppercase text-slate-400 font-bold">Location automobile</div></div>
+    </div>
+    <div class="px-3 mb-3 text-[10px] tracking-[.18em] uppercase text-slate-500 font-extrabold">Menu principal</div>
+    <nav class="space-y-1" aria-label="Navigation principale">
+      <button class="nav-link active" data-section="dashboard"><span class="nav-icon">▦</span>Vue d'ensemble</button>
+      <button class="nav-link" data-section="categories"><span class="nav-icon">▧</span>Catégories</button>
+      <button class="nav-link" data-section="vehicules"><span class="nav-icon">🚘</span>Véhicules</button>
+      <button class="nav-link" data-section="locataires"><span class="nav-icon">♙</span>Locataires</button>
+      <button class="nav-link" data-section="contrats"><span class="nav-icon">▤</span>Contrats</button>
+    </nav>
+    <div class="mt-auto rounded-2xl p-4 border border-white/10 bg-white/[.04]">
+      <div class="w-9 h-9 bg-teal/15 text-teal rounded-xl flex items-center justify-center mb-3">✦</div>
+      <p class="text-sm font-bold">AutoLoc Gestion</p>
+      <p class="text-xs text-slate-400 mt-1 leading-relaxed">Votre flotte, vos clients et vos locations au même endroit.</p>
+      <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[10px] text-slate-500"><span>Version 1.0</span><span>PHP · JSON</span></div>
+    </div>
+  </aside>
+
+  <main id="mainContent" class="ml-[260px] min-h-screen">
+    <header class="h-[82px] bg-white border-b border-slate-100 px-5 sm:px-8 flex items-center justify-between sticky top-0 z-20">
+      <div class="flex items-center gap-3">
+        <button class="md:hidden w-10 h-10 rounded-xl bg-slate-100" onclick="window.AutoLoc.toggleSidebar()" aria-label="Ouvrir le menu">☰</button>
+        <div><div id="pageEyebrow" class="text-[10px] uppercase tracking-[.18em] text-teal font-extrabold">Espace de gestion</div><h1 id="pageTitle" class="text-lg sm:text-xl font-black text-ink">Vue d'ensemble</h1></div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="hidden sm:block text-right"><div class="text-xs font-bold text-ink">Administration</div><div class="text-[10px] text-slate-400">Gestionnaire AutoLoc</div></div>
+        <div class="w-10 h-10 rounded-full bg-[#e3f8f4] text-[#087e6f] font-black flex items-center justify-center">AD</div>
+      </div>
+    </header>
+
+    <div class="p-5 sm:p-8 max-w-[1600px] mx-auto">
+      <section id="section-dashboard" class="section-panel active">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-7">
+          <div><p class="text-sm text-slate-500">Bonjour, bienvenue dans votre espace.</p><h2 class="text-2xl font-black text-ink mt-1">Votre activité aujourd'hui</h2><p class="text-xs text-slate-400 mt-2">Suivez les indicateurs clés de votre agence.</p></div>
+          <button class="btn-primary inline-flex items-center justify-center gap-2" onclick="window.AutoLoc.openContractModal()"><span class="text-xl leading-none">＋</span> Nouvelle location</button>
+        </div>
+        <div id="statsGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-7">
+          <div class="bg-white p-5 rounded-2xl shadow-card"><div class="loading-skeleton w-24 mb-4"></div><div class="loading-skeleton w-16 h-8"></div></div>
+          <div class="bg-white p-5 rounded-2xl shadow-card"><div class="loading-skeleton w-24 mb-4"></div><div class="loading-skeleton w-16 h-8"></div></div>
+          <div class="bg-white p-5 rounded-2xl shadow-card"><div class="loading-skeleton w-24 mb-4"></div><div class="loading-skeleton w-16 h-8"></div></div>
+          <div class="bg-white p-5 rounded-2xl shadow-card"><div class="loading-skeleton w-24 mb-4"></div><div class="loading-skeleton w-16 h-8"></div></div>
+        </div>
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+          <div class="xl:col-span-2 bg-white rounded-2xl shadow-card overflow-hidden">
+            <div class="px-5 py-5 flex items-center justify-between"><div><h3 class="font-black text-ink">Locations récentes</h3><p class="text-xs text-slate-400 mt-1">Les derniers contrats enregistrés</p></div><button class="text-xs font-bold text-teal" onclick="window.AutoLoc.navigate('contrats')">Voir les contrats →</button></div>
+            <div id="recentContracts" class="table-wrap"><div class="p-6"><div class="loading-skeleton mb-3"></div><div class="loading-skeleton mb-3"></div><div class="loading-skeleton"></div></div></div>
+          </div>
+          <div class="bg-ink rounded-2xl p-6 text-white relative overflow-hidden">
+            <div class="absolute -right-8 -top-10 w-40 h-40 rounded-full border-[22px] border-teal/10"></div>
+            <div class="relative"><div class="text-teal text-xs font-extrabold uppercase tracking-[.17em]">Raccourci</div><h3 class="text-xl font-black mt-3">Gérez votre flotte facilement.</h3><p class="text-xs text-slate-400 leading-relaxed mt-2">Ajoutez un véhicule, enregistrez un locataire ou créez une réservation.</p>
+              <div class="mt-6 space-y-2"><button class="w-full bg-white/10 hover:bg-white/15 rounded-xl px-4 py-3 text-left text-sm font-bold" onclick="window.AutoLoc.openVehicleModal()">＋ Ajouter un véhicule <span class="float-right text-teal">→</span></button><button class="w-full bg-white/10 hover:bg-white/15 rounded-xl px-4 py-3 text-left text-sm font-bold" onclick="window.AutoLoc.openTenantModal()">＋ Nouveau locataire <span class="float-right text-teal">→</span></button><button class="w-full bg-teal text-ink rounded-xl px-4 py-3 text-left text-sm font-extrabold" onclick="window.AutoLoc.openContractModal()">Créer une réservation <span class="float-right">→</span></button></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="section-categories" class="section-panel">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6"><div><p class="text-sm text-slate-500">Organisez les voitures par gamme.</p><h2 class="text-2xl font-black mt-1">Catégories de véhicules</h2></div><button class="btn-primary" onclick="window.AutoLoc.openCategoryModal()">＋ Ajouter une catégorie</button></div>
+        <div id="categoriesGrid" class="grid grid-cols-1 xl:grid-cols-2 gap-5"><div class="bg-white rounded-2xl p-6 shadow-card"><div class="loading-skeleton"></div></div></div>
+      </section>
+
+      <section id="section-vehicules" class="section-panel">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6"><div><p class="text-sm text-slate-500">Consultez et gérez les voitures de l'agence.</p><h2 class="text-2xl font-black mt-1">Parc automobile</h2></div><button class="btn-primary" onclick="window.AutoLoc.openVehicleModal()">＋ Ajouter un véhicule</button></div>
+        <div class="bg-white p-4 rounded-2xl shadow-card mb-5 grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div class="md:col-span-1"><label class="field-label" for="vehicleSearch">Recherche multi-critères</label><input id="vehicleSearch" class="field" placeholder="Marque, modèle, immatriculation..."></div>
+          <div><label class="field-label" for="vehicleCategoryFilter">Catégorie</label><select id="vehicleCategoryFilter" class="field"><option value="">Toutes les catégories</option></select></div>
+          <div><label class="field-label" for="vehicleStatusFilter">Disponibilité</label><select id="vehicleStatusFilter" class="field"><option value="">Tous les statuts</option><option>Disponible</option><option>Loué</option><option>En maintenance</option></select></div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-card overflow-hidden"><div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center"><h3 class="font-black">Liste des véhicules</h3><span id="vehicleCount" class="text-xs text-slate-400">0 véhicule</span></div><div id="vehiclesTable" class="table-wrap"></div></div>
+      </section>
+
+      <section id="section-locataires" class="section-panel">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6"><div><p class="text-sm text-slate-500">Retrouvez les informations des clients.</p><h2 class="text-2xl font-black mt-1">Gestion des locataires</h2></div><button class="btn-primary" onclick="window.AutoLoc.openTenantModal()">＋ Ajouter un locataire</button></div>
+        <div class="bg-white rounded-2xl shadow-card overflow-hidden"><div class="p-4 border-b border-slate-100"><input id="tenantSearch" class="field max-w-md" placeholder="Rechercher par nom, prénom ou CIN..."></div><div id="tenantsTable" class="table-wrap"></div></div>
+      </section>
+
+      <section id="section-contrats" class="section-panel">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6"><div><p class="text-sm text-slate-500">Suivez les réservations et les retours.</p><h2 class="text-2xl font-black mt-1">Contrats de location</h2></div><button class="btn-primary" onclick="window.AutoLoc.openContractModal()">＋ Nouvelle réservation</button></div>
+        <div class="bg-white p-4 rounded-2xl shadow-card mb-5 grid grid-cols-1 md:grid-cols-2 gap-3"><div><label class="field-label" for="contractSearch">Recherche</label><input id="contractSearch" class="field" placeholder="Nom, CIN, véhicule, immatriculation..."></div><div><label class="field-label" for="contractStatusFilter">Statut du contrat</label><select id="contractStatusFilter" class="field"><option value="">Tous les contrats</option><option>En cours</option><option>Terminé</option></select></div></div>
+        <div class="bg-white rounded-2xl shadow-card overflow-hidden"><div class="px-5 py-4 border-b border-slate-100"><h3 class="font-black">Historique des locations</h3></div><div id="contractsTable" class="table-wrap"></div></div>
+      </section>
+    </div>
+  </main>
+
+  <div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div id="modalCard" class="modal-card">
+      <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10"><div><p class="text-[10px] text-teal uppercase tracking-[.17em] font-extrabold">AutoLoc · Formulaire</p><h2 id="modalTitle" class="text-xl font-black text-ink mt-1">Ajouter</h2></div><button onclick="window.AutoLoc.closeModal()" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 text-xl" aria-label="Fermer">×</button></div>
+      <form id="modalForm"><div id="modalContent" class="p-6"></div><div class="px-6 py-4 border-t border-slate-100 flex items-center justify-end gap-2 sticky bottom-0 bg-white"><button type="button" class="btn-secondary" onclick="window.AutoLoc.closeModal()">Annuler</button><button id="modalSubmit" type="submit" class="btn-primary min-w-[130px]">Enregistrer</button></div></form>
+    </div>
+  </div>
+  <div id="toastContainer" class="fixed z-[90] right-4 top-4 flex flex-col gap-2" aria-live="polite"></div>
+
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
