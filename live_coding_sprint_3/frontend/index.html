@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - Blog Spartel</title>
+    <!-- Importation simplifiée de Tailwind CSS via CDN pour l'apprentissage -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuration des couleurs primaires (optionnel, mais garde la maquette jolie) -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { primary: { 50: '#f0f6ff', 500: '#2673e8', 600: '#1c5bba', 900: '#0a2042' } }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 text-gray-800 flex h-screen overflow-hidden">
+
+    <!-- BARRE LATÉRALE (Sidebar) -->
+    <aside class="w-64 bg-gray-900 text-white flex flex-col hidden md:flex">
+        <div class="p-6 border-b border-gray-800">
+            <h2 class="text-xl font-bold">Admin</h2>
+            <p class="text-xs text-primary-500 mt-1 uppercase font-semibold tracking-wider">Sprint 1</p>
+        </div>
+        <nav class="flex-1 p-4 space-y-2">
+            <a href="#" class="block px-4 py-2 rounded text-gray-400 hover:bg-gray-800 hover:text-white transition-colors">Tableau de bord</a>
+            <!-- Lien actif -->
+            <a href="#" class="block px-4 py-2 rounded bg-primary-600 text-white font-medium">Matiere</a>
+        </nav>
+    </aside>
+
+    <!-- CONTENU PRINCIPAL -->
+    <div class="flex-1 flex flex-col h-screen overflow-hidden">
+        
+        <!-- ENTÊTE (Header) -->
+        <header class="bg-white h-16 border-b border-gray-200 flex items-center justify-between px-6">
+            <div class="font-medium text-gray-600">
+                Gestion des Matiere
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-sm font-semibold">Admin</span>
+            </div>
+        </header>
+
+        <!-- ZONE DE TRAVAIL (Main) -->
+        <main class="flex-1 overflow-y-auto p-6 bg-gray-50">
+            <div class="max-w-5xl mx-auto space-y-8">
+                
+                <!-- SECTION 1 : EN-TÊTE DE LA PAGE -->
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">Matiere</h1>
+                        <p class="text-sm text-gray-500">Organisez les rubriques de votre annuaire.</p>
+                    </div>
+                    <!-- Bouton pour afficher le formulaire (l'action JS sera codée à l'étape 4) -->
+                    <button id="btn-show-form" class="bg-primary-600 text-white px-4 py-2 rounded shadow hover:bg-primary-700 transition">
+                        + Nouvelle Matiere
+                    </button>
+                </div>
+
+                <!-- SECTION 2 : FORMULAIRE D'AJOUT/MODIFICATION (Caché par défaut) -->
+                <div id="section-form" class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hidden">
+                    <h2 class="text-lg font-bold mb-4">Ajouter une Matiere</h2>
+                    <form id="form-categorie" class="space-y-4">
+                        <!-- Champ caché pour l'ID -->
+                        <input type="hidden" id="cat-id" value="">
+                        
+                        <!-- Champ Nom -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Nom de Matiere</label>
+                            <input type="text" id="nom" name="nom" required placeholder="Ex: Sante" 
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        </div>
+                        <!-- Champ description -->
+                        <div>
+                            <label for="cat-desc" class="block text-sm font-semibold text-gray-700 mb-1">descreption de Matiere</label>
+                            <input type="text" id="description" name="description" required placeholder="Ex: Sante et sont impact ..." 
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        </div>
+
+
+                        
+
+                        <!-- Boutons d'action -->
+                        <div class="flex justify-end gap-2 mt-4">
+                            <button type="button" id="btn-cancel-form" class="px-4 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-100 transition">
+                                Annuler
+                            </button>
+                            <button type="submit" id="btn-submit" class="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 transition">
+                                  <span id="btn-text">Enregistrer</span>
+
+                                   <span id="spinner" class="hidden ml-2">
+                                        ⏳
+                                    </span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- SECTION 3 : LISTE DES CATÉGORIES -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-gray-50 border-b border-gray-200">
+                            <tr>
+                                <th class="p-4 text-sm font-semibold text-gray-500 uppercase">Nom</th>
+                                <th class="p-4 text-sm font-semibold text-gray-500 uppercase">discreption</th>
+                                
+                            </tr>
+                        </thead>
+                        <tbody id="table-categories-body" class="divide-y divide-gray-100">
+                            <!-- Les données seront injectées ici par JavaScript (app.js) -->
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </main>
+    </div>
+    <div id="toast-container" class="fixed top-4 right-4 z-50"></div>
+    <!-- Script SPA -->
+    <script src="assets/main.js"></script>
+</body>
+</html>
