@@ -1,0 +1,35 @@
+classDiagram
+    class Locataire {
+        +int idLocataire
+        +string nom
+        +string prenom
+        +string telephone
+        +string email
+    }
+
+    class Vehicule {
+        +int idVehicule
+        +string immatriculation
+        +string marque
+        +string modele
+        +decimal tarifJournalier
+        +string disponibilite
+    }
+
+    class CategorieVehicule {
+        +int idCategorie
+        +string nom
+        +string description
+    }
+
+    class ContratLocation {
+        +int idContrat
+        +date dateDebut
+        +date dateFin
+        +decimal montantTotal
+        +string statut
+    }
+
+    Locataire "1" --> "0..*" ContratLocation : signe
+    Vehicule "1" --> "0..*" ContratLocation : concerne
+    CategorieVehicule "1" --> "0..*" Vehicule : classe
